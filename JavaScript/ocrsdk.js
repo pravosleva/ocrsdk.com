@@ -5,7 +5,8 @@ if (((typeof process) == 'undefined') || ((typeof window) != 'undefined')) {
 var http = require("http");
 var https = require("https");
 var url = require("url");
-var sys = require("sys");
+// var sys = require("sys");
+var sys = require("util");
 var events = require("events");
 var fs = require('fs');
 
@@ -16,25 +17,25 @@ try {
 	throw new Error("xml2js module not found. Please install it with 'npm install xml2js'");
 }
 
-exports.create = function(applicationId, password) {
-	return new ocrsdk(applicationId, password);
+exports.create = function(applicationId, password, serviceUrl) {
+	return new ocrsdk(applicationId, password, serviceUrl);
 }
 
 exports.ProcessingSettings = ProcessingSettings;
 
 /**
  * TaskData object used in functions below has the following important fields:
- * {string} id 
- * {string} status 
+ * {string} id
+ * {string} status
  * {string} resultUrl
- * 
+ *
  * It is mapped from xml described at
  * https://ocrsdk.com/documentation/specifications/status-codes/
  */
 
 /**
  * Create a new ocrsdk object.
- * 
+ *
  * @constructor
  * @param {string} applicationId 	Application Id.
  * @param {string} password 		Password for the application you received in e-mail.
@@ -64,7 +65,7 @@ function ProcessingSettings() {
 
 /**
  * Upload file to server and start processing.
- * 
+ *
  * @param {string} filePath 					Path to the file to be processed.
  * @param {ProcessingSettings} [settings] 		Image processing settings.
  * @param {function(error, taskData)} callback 	The callback function.
@@ -91,7 +92,7 @@ ocrsdk.prototype.processImage = function(filePath, settings, userCallback) {
 
 /**
  * Get current task status.
- * 
+ *
  * @param {string} taskId 						Task identifier as returned in taskData.id.
  * @param {function(error, taskData)} callback 	The callback function.
  */
@@ -111,7 +112,7 @@ ocrsdk.prototype.isTaskActive = function(taskData) {
 /**
  * Wait until task processing is finished. You need to check task status after
  * processing to see if you can download result.
- * 
+ *
  * @param {string} taskId 						Task identifier as returned in taskData.id.
  * @param {function(error, taskData)} callback 	The callback function.
  */
@@ -158,7 +159,7 @@ ocrsdk.prototype.waitForCompletion = function(taskId, userCallback) {
 /**
  * Download result of document processing. Task needs to be in 'Completed' state
  * to call this function.
- * 
+ *
  * @param {string} resultUrl 				URL where result is located
  * @param {string} outputFilePath 			Path where to save downloaded file
  * @param {function(error)} userCallback 	The callback function.
@@ -191,7 +192,7 @@ ocrsdk.prototype.downloadResult = function(resultUrl, outputFilePath,
 /**
  * Create http GET or POST request to cloud service with given path and
  * parameters.
- * 
+ *
  * @param {string} method 				'GET' or 'POST'.
  * @param {string} urlPath 				RESTful verb with parameters, e.g. '/processImage/language=French'.
  * @param {function(error, TaskData)} 	User callback which is called when request is executed.
@@ -202,7 +203,7 @@ ocrsdk.prototype._createTaskRequest = function(method, urlPath,
 
 	/**
 	 * Convert server xml response to TaskData. Calls taskDataCallback after.
-	 * 
+	 *
 	 * @param data	Server XML response.
 	 */
 	function parseXmlResponse(data) {
@@ -229,11 +230,10 @@ ocrsdk.prototype._createTaskRequest = function(method, urlPath,
 
 		if (response.response == null || response.response.task == null
 				|| response.response.task[0] == null) {
-			if (response.error != null) {
-				taskDataCallback(new Error(response.error.message[0]['_']), null);
-			} else {
+			if (response.error != null)
+				taskDataCallback(new Error(response.error.message[0]['_']), null)
+			else
 				taskDataCallback(new Error("Unknown server response"), null);
-			}
 
 			return;
 		}
@@ -256,11 +256,11 @@ ocrsdk.prototype._createTaskRequest = function(method, urlPath,
 	};
 
 	var req = null;
-	if (requestOptions.protocol == 'http:') {
+	// if (requestOptions.protocol == 'http:') {
 		req = http.request(requestOptions, getServerResponse);
-	} else {
-		req = https.request(requestOptions, getServerResponse);
-	}
+	// } else {
+	// 	req = https.request(requestOptions, getServerResponse);
+	// }
 
 	req.on('error', function(e) {
 		taskDataCallback(e, null);
@@ -275,21 +275,18 @@ ocrsdk.prototype._createTaskRequest = function(method, urlPath,
 ProcessingSettings.prototype.asUrlParams = function() {
 	var result = '';
 
-	if (this.language.length != null) {
+	if (this.language.length != null)
 		result = '?language=' + this.language;
-	} else {
+	else
 		result = '?language=English';
-	}
 
-	if (this.exportFormat.length != null) {
+	if (this.exportFormat.length != null)
 		result += '&exportFormat=' + this.exportFormat;
-	} else {
-		result += "&exportFormat=txt"
-	}
+	else
+		result += "&exportFormat=txt";
 
-	if (this.customOptions.length != 0) {
+	if (this.customOptions.length != 0)
 		result += '&' + this.customOptions;
-	}
 
 	return result;
 }

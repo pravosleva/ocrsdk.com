@@ -1,0 +1,22 @@
+{
+  "name": "JavaScript",
+  "version": "1.0.0",
+  "description": "This folder contains demo sample for Node.js",
+  "main": "ocrsdk.js",
+  "dependencies": {
+    "dotenv": "^8.2.0",
+    "events": "^3.1.0",
+    "https": "^1.0.0",
+    "url": "^0.11.0",
+    "util": "^0.12.1",
+    "xml2js": "^0.4.23"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test-0": "echo \"Error: no test specified\" && exit 1",
+    "test-1": "node test.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
