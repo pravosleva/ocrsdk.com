@@ -4,14 +4,15 @@ if (((typeof process) == 'undefined') || ((typeof window) != 'undefined')) {
 	throw new Error("This code must be run on server side under NodeJS");
 }
 
-!!! Please provide your application id and password and remove this line !!!
-// To create an application and obtain a password,
-// register at https://cloud.ocrsdk.com/Account/Register
-// More info on getting your application id and password at
-// https://ocrsdk.com/documentation/faq/#faq3
+/*
+	To create an application and obtain a password,
+	register at https://cloud.ocrsdk.com/Account/Register
+	More info on getting your application id and password at
+	https://ocrsdk.com/documentation/faq/#faq3
 
-// Change to http://cloud-westus.ocrsdk.com for applications created in US location
-// Change to https for secure connection
+	Change to http://cloud-westus.ocrsdk.com for applications created in US location
+	Change to https for secure connection
+*/
 
 // Name and password should be taken from envs
 // Password should be sent to your e-mail after application was created
@@ -20,14 +21,15 @@ const dotenv = require('dotenv');
 const fs = require('fs');
 const cfg = dotenv.parse(fs.readFileSync(path.resolve(process.cwd(), '.env.abbyy')))
 for (const k in cfg) process.env[k] = cfg[k];
-const { ABBYY_APP_ID, ABBYY_APP_PASSWORD_ID, ABBYY_SERVICE_URL } = process.env;
+const { ABBYY_APP_ID, ABBYY_APP_PASSWORD, ABBYY_SERVICE_URL } = process.env;
 
 const filesBasePath = path.resolve(process.cwd(), './image-sample');
-var imagePath = `${filesBasePath}/sample-2-blured.jpg`;
-var outputPath = `${filesBasePath}/result-2.txt`;
+const imagePath = `${filesBasePath}/sample-2-blured.jpg`;
+const outputPath = `${filesBasePath}/result-2.txt`;
+
 
 try {
-	console.log("ABBYY Cloud OCR SDK Sample for Node.js");
+	console.log('---\nABBYY Cloud OCR SDK Sample for Node.js\n---\n');
 
 	// Step 1: Create files dir if necessary:
 	try {
@@ -56,13 +58,13 @@ try {
 	}
 
 	// Step 2: Throw if necessary:
-	if (!ABBYY_APP_ID || !ABBYY_APP_PASSWORD_ID) {
-	  throw new Error("Please provide your application id and password!")
-	  return;
+	if (!ABBYY_APP_ID || !ABBYY_APP_PASSWORD) {
+		throw new Error('Please provide your application id and password!')
+		return;
 	}
 
 	var ocrsdkModule = require('./ocrsdk.js');
-	var ocrsdk = ocrsdkModule.create(ABBYY_APP_ID, ABBYY_APP_PASSWORD_ID, ABBYY_SERVICE_URL);
+	var ocrsdk = ocrsdkModule.create(ABBYY_APP_ID, ABBYY_APP_PASSWORD, ABBYY_SERVICE_URL);
 
 	function downloadCompleted(error) {
 		if (error) {
@@ -112,8 +114,8 @@ try {
 	var settings = new ocrsdkModule.ProcessingSettings();
 	// Set your own recognition language and output format here
 	settings.language = "Russian,English"; // Can be comma-separated list, e.g. "German,French".
-	settings.exportFormat = "txt"; // All possible values are listed in 'exportFormat' parameter description
-                                   // at https://ocrsdk.com/documentation/apireference/processImage/
+	settings.exportFormat = "txt";	// All possible values are listed in 'exportFormat' parameter description
+																	// at https://ocrsdk.com/documentation/apireference/processImage/
 
 	console.log("Uploading image..");
 	ocrsdk.processImage(imagePath, settings, uploadCompleted);
